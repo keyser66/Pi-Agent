@@ -106,12 +106,4 @@
 
 *图 S8-2  调用 `/skill:pptx` 后，Pi 依据加载的技能内容给出回复：名称 `pptx`、用途（创建、读取、编辑 PowerPoint `.pptx`/`.potx` 文件）、所在目录 `D:\projects\study\.pi\skills\pptx\SKILL.md`。*
 
----
 
-## 实验中遇到的问题
-
-1. **Windows git 证书校验失败**：直接 `git clone` 报 `CRYPT_E_NO_REVOCATION_CHECK`；改用 GitHub REST API（tree 递归清单 + raw 文件下载）完成 Skill 目录拉取。
-2. **辅助工具下载警告**：Pi 首次启动下载 `fd`、`ripgrep` 时出现证书警告，不影响启动与会话。
-3. **WSL bash 不可用**（教师演示环境）：`execvpe(/bin/bash) failed` 导致终端工具失败，需改用可用的 shell 路径。
-4. **模型与思考级别**：`deepseek-flash` 对重复提问会直接复述「Answer again, same」，属模型行为，不影响切换验证。
-   ---
