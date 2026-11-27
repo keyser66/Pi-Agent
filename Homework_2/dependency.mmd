@@ -1,67 +1,60 @@
-%% pi-hunnu-2026 模块层级与依赖关系图（Mermaid 可编辑图源）
-%% 箭头统一为「使用方 → 被依赖方」：A --> B 表示 A 依赖 / 使用 B
-%% 实线 = package.json dependencies（运行时直接依赖，进入根构建链）
-%% 虚线 = devDependencies / 可选依赖（不进入根构建链）
-%% 层级依据：内部运行时依赖图的最长路径深度（下游基础 → 上游应用）
-flowchart TB
-    subgraph L3["L3  应用 / 远端执行层"]
-        CA["coding-agent<br/>CLI 应用"]
-        ENV["env<br/>SSH 远端执行环境"]
+flowchart LR
+    subgraph L4[编排与入口层]
+        coding-agent[coding-agent]
+        agent[agent]
+    end
+    subgraph L3[能力层]
+        ai[ai]
+        durable[durable]
+        env[env]
+    end
+    subgraph L2[基础运行时层]
+        chord[chord]
+        tui[tui]
+        codemode[codemode]
+        mcp[mcp]
+    end
+    subgraph L1[基础层]
+        schema[schema]
+        telemetry[telemetry]
     end
 
-    subgraph L2["L2  持久化与 Agent 内核层"]
-        DUR["durable<br/>持久化会话 / 任务 / 文档"]
-        AG["agent<br/>Agent 循环与工具调用"]
-    end
+    coding-agent --> agent
+    coding-agent --> ai
+    coding-agent --> codemode
+    coding-agent --> mcp
+    coding-agent --> tui
 
-    subgraph L1["L1  核心运行时 / 模型 API 层"]
-        CH["chord<br/>跨进程对象运行时"]
-        AI["ai<br/>统一多provider LLM API"]
-    end
+    agent --> ai
+    agent --> schema
 
-    subgraph L0["L0  基础能力层（无内部运行时依赖）"]
-        TEL["telemetry<br/>遥测契约"]
-        SCH["schema<br/>JSON Schema 校验"]
-        CD["codemode<br/>QuickJS 工具沙箱"]
-        MCP["mcp<br/>独立 MCP 客户端"]
-        TUI["tui<br/>终端 UI 渲染"]
-    end
+    durable --> chord
+    durable --> ai
+    durable --> codemode
+    durable --> schema
+    durable --> telemetry
 
-    EV["evals（private）<br/>评测：dev-only"]
+    env --> durable
+    env --> chord
 
-    %% 运行时直接依赖（实线）
-    CA --> AG
-    CA --> AI
-    CA --> CD
-    CA --> MCP
-    CA --> TUI
-    ENV --> CH
-    ENV --> DUR
-    DUR --> CH
-    DUR --> AI
-    DUR --> CD
-    DUR --> SCH
-    DUR --> TEL
-    AG --> AI
-    AG --> SCH
-    CH --> SCH
-    CH --> TEL
-    AI --> SCH
-    AI --> TEL
+    ai --> schema
+    ai --> telemetry
 
-    %% 开发依赖 / 可选依赖（虚线，不参与构建顺序）
-    EV -. "devDependency" .-> AI
-    EV -. "devDependency" .-> CA
-    CH -. "optional peer: esbuild / react / ws（外部包）" .-> EXT["外部可选 peer"]
+    chord --> schema
+    chord --> telemetry
 
-    classDef l0 fill:#eef6ff,stroke:#3b82f6,color:#111827,stroke-width:1px;
-    classDef l1 fill:#eefaf3,stroke:#16a34a,color:#111827,stroke-width:1px;
-    classDef l2 fill:#fff7e6,stroke:#d97706,color:#111827,stroke-width:1px;
-    classDef l3 fill:#fdf2f8,stroke:#db2777,color:#111827,stroke-width:1px;
-    classDef dev fill:#f3f4f6,stroke:#6b7280,color:#111827,stroke-width:1px,stroke-dasharray:4 3;
+    classDef base fill:#f4f8f5,stroke:#5e8b76,color:#22332b,stroke-width:1.2px;
+    classDef runtime fill:#f7f9f8,stroke:#7ba393,color:#22332b,stroke-width:1.2px;
+    classDef ability fill:#f6f4ef,stroke:#9aa886,color:#33301f,stroke-width:1.2px;
+    classDef entry fill:#f3f6f4,stroke:#4f7d68,color:#1f2f27,stroke-width:1.4px;
+    class schema,telemetry base;
+    class chord,tui,codemode,mcp runtime;
+    class ai,durable,env ability;
+    class agent,coding-agent entry;
 
-    class TEL,SCH,CD,MCP,TUI l0;
-    class CH,AI l1;
-    class DUR,AG l2;
-    class CA,ENV l3;
-    class EV,EXT dev;
+    style L1 fill:#ffffff,stroke:#cfe0d7,color:#22332b;
+    style L2 fill:#ffffff,stroke:#cfe0d7,color:#22332b;
+    style L3 fill:#ffffff,stroke:#cfe0d7,color:#22332b;
+    style L4 fill:#ffffff,stroke:#cfe0d7,color:#22332b;
+
+    linkStyle default stroke:#8aa69a,stroke-width:1px;
